@@ -16,7 +16,7 @@ relogio = pygame.time.Clock()
 
 # Importa a imagem da capivara
 capivara_supe = pygame.image.load('assets/capivara/andando/tile000.png')
-capivara_rect = capivara_supe.get_rect(center = (30, 150))
+capivara_rect = capivara_supe.get_rect(center = (60, 150))
 
 # Propriedades da Capivara
 gravidade_capivara = 0
@@ -37,6 +37,15 @@ while True:
         if evento.type == pygame.QUIT:
             pygame.quit()
             exit()
+        
+        # Verifica se uma tecla foi apertada
+        if evento.type == pygame.KEYDOWN:
+            # Verifica se apertou espaço
+            if evento.key == pygame.K_SPACE:
+                # Diminui a gravidade para -20
+                # Apenas se a capivara estiver tocando o chão
+                if capivara_rect.centery == 150:
+                    gravidade_capivara = -15
 
     # Coloca uma cor de fundo na tela
     tela.fill("#7FFF00")
