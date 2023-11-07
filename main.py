@@ -20,6 +20,8 @@ pixel_font = pygame.font.Font('assets/font/Pixeltype.ttf', 80)
 
 # Importa a imagem da capivara
 # capivara_supe = pygame.image.load('assets/capivara/andando/tile000.png')
+
+# Importa as imagens da capivara
 capivara_lista_imagens = []
 for imagem in range(0, 8):
     capivara_superficie = pygame.image.load(f'assets/capivara/andando/tile00{imagem}.png')
@@ -51,6 +53,9 @@ pygame.time.set_timer(novo_ponto_timer, 1000)
 # Pontuacao 
 pontos = 0
 
+# Game over
+jogador_morreu = False
+
 # LOOP PRINCIPAL
 while True:
     # Verifica a ocorrencia de eventos
@@ -60,61 +65,78 @@ while True:
             pygame.quit()
             exit()
         
-        # Verifica se uma tecla foi apertada
-        if evento.type == pygame.KEYDOWN:
-            # Verifica se apertou espaço
-            if evento.key == pygame.K_SPACE:
-                # Diminui a gravidade para -20
-                # Apenas se a capivara estiver tocando o chão
-                if capivara_rect.centery == 150:
-                    gravidade_capivara = -15
+        if not jogador_morreu:
+            # Verifica se uma tecla foi apertada
+            if evento.type == pygame.KEYDOWN:
+                # Verifica se apertou espaço
+                if evento.key == pygame.K_SPACE:
+                    # Diminui a gravidade para -20
+                    # Apenas se a capivara estiver tocando o chão
+                    if capivara_rect.centery == 150:
+                        gravidade_capivara = -15
 
-        # Adiciona um novo gamba na lista de gambas
-        if evento.type == novo_gamba_timer:
-            x = randint(730, 950)
-            novo_gamba = gamba_supe.get_rect(center = (x, 150))
-            lista_gambas.append(novo_gamba)
+            # Adiciona um novo gamba na lista de gambas
+            if evento.type == novo_gamba_timer:
+                x = randint(730, 950)
+                novo_gamba = gamba_supe.get_rect(center = (x, 150))
+                lista_gambas.append(novo_gamba)
 
-        # Adiciona um ponto a cada segundo
-        if evento.type == novo_ponto_timer:
-            pontos += 1
+            # Adiciona um ponto a cada segundo
+            if evento.type == novo_ponto_timer:
+                pontos += 1
 
     # Coloca uma cor de fundo na tela
     tela.fill("#7FFF00")
 
-    # Coloca as imagens de fundo
-    tela.blit(ceu_super, (0, 0))
-    tela.blit(chao_super, (0, 160))
+    if not jogador_morreu:
 
-    # Coloca a capivara na tela
-    tela.blit(capivara_supe, capivara_rect)
+        # Coloca as imagens de fundo
+        tela.blit(ceu_super, (0, 0))
+        tela.blit(chao_super, (0, 160))
 
-    # Aumenta a gravidade de 1 em 1
-    gravidade_capivara += 1
-    capivara_rect.centery += gravidade_capivara
+        # Coloca a capivara na tela
 
-    # Desenha e movimenta a lista de gambas
-    if lista_gambas:
-        # Executa um código para cada gamba na lista
-        for posicao, gamba in enumerate(lista_gambas):
-            gamba.x -= 5
-            tela.blit(gamba_supe, gamba)
+        # Animação da capivara
+        index_capivara += 0.30
+        capivara_supe = capivara_lista_imagens[int(index_capivara)]
 
-            if gamba.x < -100:
-                # Remove um gamba da lista de gambas
-                lista_gambas.pop(posicao)
+        if index_capivara > 7:
+            index_capivara = 0
 
-            # Verifica se a capivara colidiu com um gamba
-            if capivara_rect.colliderect(gamba):
-                print("Você morreu!")
+        tela.blit(capivara_supe, capivara_rect)
 
-    # Impede a capivara de cair
-    if capivara_rect.centery > 150: capivara_rect.centery = 150
+        # Aumenta a gravidade de 1 em 1
+        gravidade_capivara += 1
+        capivara_rect.centery += gravidade_capivara
 
-    # Mostra os pontos na tela
-    pontos_text = pixel_font.render(str(pontos), False, 'black')
-    pontos_rect = pontos_text.get_rect(topright = (680, 20))
-    tela.blit(pontos_text, pontos_rect)
+        # Desenha e movimenta a lista de gambas
+        if lista_gambas:
+            # Executa um código para cada gamba na lista
+            for posicao, gamba in enumerate(lista_gambas):
+                gamba.x -= 5
+                tela.blit(gamba_supe, gamba)
+
+                if gamba.x < -100:
+                    # Remove um gamba da lista de gambas
+                    lista_gambas.pop(posicao)
+
+                # Verifica se a capivara colidiu com um gamba
+                if capivara_rect.colliderect(gamba):
+                    jogador_morreu = True
+
+        # Impede a capivara de cair
+        if capivara_rect.centery > 150: capivara_rect.centery = 150
+
+        # Mostra os pontos na tela
+        pontos_text = pixel_font.render(str(pontos), False, 'black')
+        pontos_rect = pontos_text.get_rect(topright = (680, 20))
+        tela.blit(pontos_text, pontos_rect)
+    else:
+        morte_text = pixel_font.render("Voce morreu", False, 'black')
+        morte_rect = pontos_text.get_rect(center = (350, 100))
+        tela.blit(morte_text, morte_rect)
+
+
 
     # Atualiza a tela
     pygame.display.update()
